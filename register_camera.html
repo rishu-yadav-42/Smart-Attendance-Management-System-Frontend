@@ -117,20 +117,6 @@
                 <div class="text-xs text-slate-500 text-center font-medium">Turn head slightly (left, right, tilt) for multi-angle face training.</div>
             </div>
 
-            <!-- Live Diagnostics Console -->
-            <div class="p-6 pt-0">
-                <div class="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs border border-slate-700 shadow-xl">
-                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-700 font-bold text-slate-400">
-                        <span class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Live Capture Log & Server Diagnostics
-                        </span>
-                        <span id="backendApiTag" class="text-[10px] text-slate-400 font-mono">Render Backend</span>
-                    </div>
-                    <div id="logBox" class="live-log-box flex flex-col gap-1 text-[11px] leading-relaxed font-mono">
-                        <div class="text-slate-400">[Starting initialization...]</div>
-                    </div>
-                </div>
             </div>
             </section>
         </main>
@@ -168,9 +154,12 @@
             setTimeout(() => { window.location.href = 'index.html'; }, 2000);
         }
 
-        document.getElementById('backendApiTag').textContent = API_BASE_URL.replace('https://', '').split('.')[0];
+        const apiTag = document.getElementById('backendApiTag');
+        if (apiTag) apiTag.textContent = API_BASE_URL.replace('https://', '').split('.')[0];
 
         function addLog(msg, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${msg}`);
+            if (!logBox) return;
             const time = new Date().toLocaleTimeString();
             const div = document.createElement('div');
             if (type === 'error') div.className = 'text-red-400 font-bold';
