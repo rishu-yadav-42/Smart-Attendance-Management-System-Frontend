@@ -4,30 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Face</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260430c') }}">
+    <link rel="stylesheet" href="static/style.css?v=20260430c">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            blue: '#2563EB',
-                            green: '#059669',
-                            bg: '#F8FAFC'
-                        }
-                    },
-                    boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
-                        'glow': '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
-                    }
-                }
-            }
-        }
+        window.API_BASE_URL = window.API_BASE_URL || localStorage.getItem('API_BASE_URL') || 'https://smart-attendance-management-system-backend.onrender.com';
     </script>
     <style>
         .client-camera video {
@@ -71,7 +52,7 @@
                     <p class="text-blue-600 font-bold text-xs tracking-wide uppercase">Register Face</p>
                     <h1 class="text-xl font-extrabold text-slate-900 mt-1">Keep the face clear and steady</h1>
                 </div>
-                <a href="/" class="ultra-glass-btn flex items-center gap-2 px-4 py-2 rounded-full shadow-sm active:scale-95 transition-transform duration-200 text-sm font-semibold text-slate-700">
+                <a href="index.html" class="ultra-glass-btn flex items-center gap-2 px-4 py-2 rounded-full shadow-sm active:scale-95 transition-transform duration-200 text-sm font-semibold text-slate-700">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                     Cancel
                 </a>
@@ -98,177 +79,128 @@
             <div class="camera-error" id="cameraError" style="display:none;">
                 <p><strong>Camera access nahi mila.</strong></p>
                 <p>Browser settings mein camera permission enable karein.</p>
-                <button class="btn primary" onclick="location.reload()">Retry</button>
-                <a class="btn secondary" href="/" style="margin-left:8px;">Back</a>
+                <button onclick="location.reload()" class="ultra-glass-btn px-4 py-2 rounded-full font-bold">Retry</button>
             </div>
-        </section>
 
-        <section class="guide-panel">
-            <div class="guide-header">
-                <h3>Face Position Guide</h3>
-                <span id="progress-text">Step 1 of 6</span>
+            <div class="camera-actions flex flex-col gap-3 p-6 border-t border-white/40">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-600 px-2">
+                    <span>Captured Samples</span>
+                    <span id="sampleCounter">0 / 60</span>
+                </div>
+                <div class="w-full bg-slate-200/60 rounded-full h-2.5 overflow-hidden">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="text-xs text-slate-500 text-center font-medium">Head ko alag angles (slight left, right, tilt) par turn karein.</div>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width:5%"></div>
-            </div>
-            <strong class="guide-current" id="guideCurrent">Look straight</strong>
-            <ul class="guide-steps" id="guideSteps">
-                <li class="active">Look straight</li>
-                <li>Turn left</li>
-                <li>Turn right</li>
-                <li>Look up</li>
-                <li>Look down</li>
-                <li>Look straight again</li>
-            </ul>
-            <div style="margin-top:12px;font-size:12px;color:var(--muted);">
-                Samples captured: <strong id="sampleCount">0</strong>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
+    </div>
 
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const statusEl = document.getElementById('cameraStatus');
-        const errorEl = document.getElementById('cameraError');
+        const faceDetectedEl = document.getElementById('faceDetected');
+        const sampleCounter = document.getElementById('sampleCounter');
+        const progressBar = document.getElementById('progressBar');
         const overlayEl = document.getElementById('processingOverlay');
-        const processText = document.getElementById('processText');
-        const faceDetected = document.getElementById('faceDetected');
-        const cameraStage = document.getElementById('cameraStage');
-        const sampleCountEl = document.getElementById('sampleCount');
-        const progressFill = document.getElementById('progressFill');
-        const guideCurrent = document.getElementById('guideCurrent');
-        const progressText = document.getElementById('progress-text');
-        const guideSteps = document.getElementById('guideSteps').querySelectorAll('li');
-
-        const guideStepsList = [
-            "Look straight",
-            "Turn left",
-            "Turn right",
-            "Look up",
-            "Look down",
-            "Look straight again"
-        ];
+        const cameraError = document.getElementById('cameraError');
 
         let stream = null;
-        let samplesSent = 0;
-        let isComplete = false;
-        let currentStep = 0;
-
-        function setGuideStep(index) {
-            currentStep = index;
-            if (guideCurrent) guideCurrent.textContent = guideStepsList[index];
-            if (progressFill) progressFill.style.width = ((index + 1) / guideStepsList.length * 100) + "%";
-            if (progressText) progressText.textContent = `Step ${index + 1} of ${guideStepsList.length}`;
-            guideSteps.forEach((item, itemIndex) => {
-                item.classList.toggle("active", itemIndex === index);
-                item.classList.toggle("completed", itemIndex < index);
-            });
-        }
+        let isCapturing = false;
+        let samplesCaptured = 0;
+        const TARGET_SAMPLES = 60;
+        let captureInterval = null;
 
         async function startCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
                 });
                 video.srcObject = stream;
-                statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Face ko circle ke andar rakhiye. Neeche diye steps follow kijiye.';
-                startCaptureProcess();
+                await video.play();
+                statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Face detect karke automatically samples capture ho rahe hain...';
+                startAutoCapture();
             } catch (err) {
                 console.error('Camera error:', err);
-                errorEl.style.display = 'block';
-                statusEl.style.display = 'none';
-                cameraStage.classList.add('processing');
+                cameraError.style.display = 'block';
             }
         }
 
-        function captureFrame() {
+        function captureFrameBlob() {
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
             const ctx = canvas.getContext('2d');
-            // Send original image for consistent training data
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             return new Promise(resolve => {
-                canvas.toBlob(resolve, 'image/jpeg', 0.95);
+                canvas.toBlob(resolve, 'image/jpeg', 0.9);
             });
         }
 
-        async function sendFrame() {
-            if (isComplete) return;
-            const blob = await captureFrame();
+        async function captureSingleSample() {
+            if (isCapturing || samplesCaptured >= TARGET_SAMPLES) return;
+            isCapturing = true;
+
+            const blob = await captureFrameBlob();
             const formData = new FormData();
-            formData.append('image', blob, 'frame.jpg');
+            formData.append('image', blob, 'sample.jpg');
 
             try {
-                const response = await fetch('/capture_register_frame', {
+                const res = await fetch(`${API_BASE_URL}/capture_register_frame`, {
                     method: 'POST',
                     body: formData
                 });
-                const result = await response.json();
-                if (result.success) {
-                    samplesSent = result.sample;
-                    sampleCountEl.textContent = samplesSent;
-                    faceDetected.classList.add('active');
-                    setTimeout(() => faceDetected.classList.remove('active'), 400);
-                    return true;
+                const data = await res.json();
+
+                if (data.success) {
+                    samplesCaptured = data.sample || (samplesCaptured + 1);
+                    sampleCounter.textContent = `${samplesCaptured} / ${TARGET_SAMPLES}`;
+                    const pct = Math.min(100, Math.round((samplesCaptured / TARGET_SAMPLES) * 100));
+                    progressBar.style.width = `${pct}%`;
+
+                    faceDetectedEl.classList.add('active');
+                    setTimeout(() => faceDetectedEl.classList.remove('active'), 250);
+
+                    if (samplesCaptured >= TARGET_SAMPLES) {
+                        finishRegistration();
+                    }
                 }
             } catch (err) {
-                console.error('Frame send error:', err);
+                console.error('Capture error:', err);
+            } finally {
+                isCapturing = false;
             }
-            return false;
         }
 
-        async function completeRegistration() {
-            if (isComplete) return;
-            isComplete = true;
-            cameraStage.classList.add('processing');
+        function startAutoCapture() {
+            captureInterval = setInterval(() => {
+                if (samplesCaptured >= TARGET_SAMPLES) {
+                    clearInterval(captureInterval);
+                    return;
+                }
+                captureSingleSample();
+            }, 300);
+        }
+
+        async function finishRegistration() {
+            if (captureInterval) clearInterval(captureInterval);
             overlayEl.style.display = 'grid';
-            processText.textContent = `Model train ho raha hai. ${samplesSent} samples captured.`;
             if (stream) stream.getTracks().forEach(t => t.stop());
 
             try {
-                const response = await fetch('/process_register_ajax', { method: 'POST' });
-                const result = await response.json();
-                if (result.success) {
-                    window.location.href = `/result?success=1&title=Register+Student&message=${encodeURIComponent(result.message)}`;
+                const res = await fetch(`${API_BASE_URL}/process_register_ajax`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = `result.html?success=1&title=Registration&message=${encodeURIComponent(data.message)}`;
                 } else {
-                    window.location.href = `/result?success=0&title=Register+Student&message=${encodeURIComponent(result.message)}`;
+                    window.location.href = `result.html?success=0&title=Registration&message=${encodeURIComponent(data.message)}`;
                 }
             } catch (err) {
-                window.location.href = `/result?success=0&title=Register+Student&message=${encodeURIComponent('Registration complete karne mein error aaya.')}`;
+                window.location.href = `result.html?success=0&title=Registration&message=${encodeURIComponent('Registration finalize karne mein error aaya.')}`;
             }
-        }
-
-        function startCaptureProcess() {
-            let stepIndex = 0;
-            setGuideStep(stepIndex);
-
-            // Change guide step every 2 seconds
-            const stepTimer = setInterval(() => {
-                stepIndex = Math.min(stepIndex + 1, guideStepsList.length - 1);
-                setGuideStep(stepIndex);
-            }, 2000);
-
-            // Capture frame every 700ms (sequential - wait for server before next)
-            let captureRunning = true;
-            async function captureLoop() {
-                while (captureRunning && !isComplete) {
-                    await sendFrame();
-                    await new Promise(r => setTimeout(r, 700));
-                }
-            }
-            captureLoop();
-
-            // Stop after 20 seconds and process
-            setTimeout(() => {
-                captureRunning = false;
-                clearInterval(stepTimer);
-                completeRegistration();
-            }, 20000);
         }
 
         startCamera();
     </script>
-    </div>
 </body>
 </html>

@@ -4,38 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260430e') }}">
+    <link rel="stylesheet" href="static/style.css?v=20260430e">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            blue: '#2563EB',
-                            green: '#059669',
-                            bg: '#F8FAFC'
-                        }
-                    },
-                    boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
-                        'glow': '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
-                    }
-                }
-            }
-        }
+        window.API_BASE_URL = window.API_BASE_URL || localStorage.getItem('API_BASE_URL') || 'https://smart-attendance-management-system-backend.onrender.com';
     </script>
 </head>
-<body>
-    <div class="guest-view text-slate-800 antialiased min-h-screen overflow-x-hidden pb-10 flex items-center justify-center">
+<body class="antialiased">
+    <div class="guest-view text-slate-800 min-h-screen flex items-center justify-center">
         <main class="relative z-10 px-6 w-full max-w-md">
-            <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors mb-6">
+            <a href="index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                Back
+                Back to Dashboard
             </a>
 
             <section class="ultra-glass rounded-[2rem] p-8 flex flex-col gap-6">
@@ -47,21 +28,19 @@
                     <p class="text-slate-500 text-sm">Sign in to manage attendance records</p>
                 </div>
 
-                {% if error %}
-                <div class="relative z-10 bg-red-50 text-red-600 text-sm font-semibold px-4 py-3 rounded-xl border border-red-100">
-                    {{ error }}
+                <div id="errorBox" class="hidden relative z-10 bg-red-50 text-red-600 text-sm font-semibold px-4 py-3 rounded-xl border border-red-100">
+                    Invalid username or password.
                 </div>
-                {% endif %}
 
-                <form method="POST" class="relative z-10 flex flex-col gap-4">
+                <form id="loginForm" class="relative z-10 flex flex-col gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-semibold text-slate-700">Username</label>
-                        <input type="text" name="username" placeholder="admin" required
+                        <input type="text" id="username" placeholder="Rishu" required
                             class="w-full px-4 py-3 rounded-xl bg-white/70 border border-white/60 text-slate-800 font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all">
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-semibold text-slate-700">Password</label>
-                        <input type="password" name="password" placeholder="Enter password" required
+                        <input type="password" id="password" placeholder="Rishu@123" required
                             class="w-full px-4 py-3 rounded-xl bg-white/70 border border-white/60 text-slate-800 font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all">
                     </div>
 
@@ -73,5 +52,19 @@
             </section>
         </main>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            if (user === 'Rishu' && pass === 'Rishu@123') {
+                localStorage.setItem('adminLoggedIn', 'true');
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('errorBox').classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

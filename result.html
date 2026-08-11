@@ -3,78 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Result Status</title>
+    <link rel="stylesheet" href="static/style.css?v=20260430e">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            blue: '#2563EB',
-                            green: '#059669',
-                            bg: '#F8FAFC'
-                        }
-                    },
-                    boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
-                        'glow': '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
-                    }
-                }
-            }
-        }
-    </script>
-    <script>
-        let seconds = 4;
-        function updateTimer() {
-            const el = document.getElementById("timer");
-            if (el) el.textContent = `Redirecting in ${seconds}s...`;
-            seconds -= 1;
-            if (seconds < 0) {
-                window.location.href = "{{ back_url }}";
-            } else {
-                setTimeout(updateTimer, 1000);
-            }
-        }
-        document.addEventListener("DOMContentLoaded", updateTimer);
+        window.API_BASE_URL = window.API_BASE_URL || localStorage.getItem('API_BASE_URL') || 'https://smart-attendance-management-system-backend.onrender.com';
     </script>
 </head>
-<body>
-    <div class="guest-view text-slate-800 antialiased min-h-screen overflow-x-hidden pb-10 flex items-center justify-center">
+<body class="antialiased">
+    <div class="guest-view text-slate-800 min-h-screen flex items-center justify-center">
         <main class="relative z-10 px-6 w-full max-w-md">
             <section class="ultra-glass rounded-[2rem] p-8 flex flex-col items-center text-center gap-6">
                 <div class="relative z-10 w-full flex flex-col items-center gap-4">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-inner {% if success %}bg-emerald-100 text-emerald-600{% else %}bg-red-100 text-red-600{% endif %}">
-                        {% if success %}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        {% else %}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        {% endif %}
+                    <div id="statusIcon" class="w-16 h-16 rounded-full flex items-center justify-center shadow-inner bg-emerald-100 text-emerald-600">
+                        <svg id="successSvg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg id="errorSvg" class="w-8 h-8 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </div>
 
                     <div>
-                        <p class="text-xs font-black uppercase tracking-widest {% if success %}text-emerald-600{% else %}text-red-500{% endif %}">{{ title }}</p>
-                        <h1 class="text-xl font-extrabold text-slate-900 mt-1">{{ message }}</h1>
+                        <p id="resTitle" class="text-xs font-black uppercase tracking-widest text-emerald-600">Result</p>
+                        <h1 id="resMessage" class="text-xl font-extrabold text-slate-900 mt-1">Operation complete.</h1>
                     </div>
                 </div>
 
-                {% if stats %}
-                <div class="relative z-10 w-full grid grid-cols-3 gap-3">
-                    {% for item in stats %}
-                    <div class="bg-white/60 backdrop-blur-md rounded-xl p-3 text-center border border-white/60">
-                        <div class="text-lg font-extrabold text-slate-900">{{ item.value }}</div>
-                        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">{{ item.label }}</div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <a href="{{ back_url }}" class="relative z-10 w-full bg-gradient-to-r {% if success %}from-emerald-400 to-teal-500{% else %}from-blue-500 to-blue-600{% endif %} text-white rounded-full py-3.5 px-6 font-bold text-base shadow-glow flex items-center justify-center gap-2 active:scale-[0.98] transition-all duration-200">
+                <a href="index.html" class="relative z-10 w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full py-3.5 px-6 font-bold text-base shadow-glow flex items-center justify-center gap-2 active:scale-[0.98] transition-all duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                     Back to Dashboard
                 </a>
@@ -83,5 +36,40 @@
             </section>
         </main>
     </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const isSuccess = params.get('success') === '1';
+        const title = params.get('title') || 'Result';
+        const message = params.get('message') || (isSuccess ? 'Success' : 'An error occurred.');
+
+        document.getElementById('resTitle').textContent = title;
+        document.getElementById('resMessage').textContent = message;
+
+        if (isSuccess) {
+            document.getElementById('resTitle').className = 'text-xs font-black uppercase tracking-widest text-emerald-600';
+            document.getElementById('statusIcon').className = 'w-16 h-16 rounded-full flex items-center justify-center shadow-inner bg-emerald-100 text-emerald-600';
+            document.getElementById('successSvg').classList.remove('hidden');
+            document.getElementById('errorSvg').classList.add('hidden');
+        } else {
+            document.getElementById('resTitle').className = 'text-xs font-black uppercase tracking-widest text-red-500';
+            document.getElementById('statusIcon').className = 'w-16 h-16 rounded-full flex items-center justify-center shadow-inner bg-red-100 text-red-600';
+            document.getElementById('successSvg').classList.add('hidden');
+            document.getElementById('errorSvg').classList.remove('hidden');
+        }
+
+        let seconds = 4;
+        function updateTimer() {
+            const el = document.getElementById("timer");
+            if (el) el.textContent = `Redirecting in ${seconds}s...`;
+            seconds -= 1;
+            if (seconds < 0) {
+                window.location.href = "index.html";
+            } else {
+                setTimeout(updateTimer, 1000);
+            }
+        }
+        updateTimer();
+    </script>
 </body>
 </html>
