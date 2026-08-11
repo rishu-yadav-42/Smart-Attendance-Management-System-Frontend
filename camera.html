@@ -157,7 +157,7 @@
                 video.srcObject = stream;
                 await video.play();
                 addLog(`✅ Camera stream connected (640x480)`);
-                statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Face dhoondh raha hoon...';
+                statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Searching for face...';
                 startScanning();
             } catch (err) {
                 console.error('Camera access error:', err);
@@ -262,7 +262,7 @@
                 }
             } catch (err) {
                 addLog(`❌ Attendance API call error: ${err.message}`, 'error');
-                window.location.href = `result.html?success=0&title=Attendance&message=${encodeURIComponent('Attendance mark karne mein error aaya.')}`;
+                window.location.href = `result.html?success=0&title=Attendance&message=${encodeURIComponent('An error occurred while marking attendance.')}`;
             }
         }
 
@@ -282,7 +282,7 @@
                     if (!matchFound) {
                         if (stream) stream.getTracks().forEach(t => t.stop());
                         addLog(`⏱️ Scanning timed out (10s limit reached)`, 'warn');
-                        window.location.href = `result.html?success=0&title=Attendance&message=${encodeURIComponent('Face match nahi hua. Please try again with better lighting.')}`;
+                        window.location.href = `result.html?success=0&title=Attendance&message=${encodeURIComponent('Face match failed. Unrecognized face. Please try again with better lighting.')}`;
                     }
                 }
             }, 800);

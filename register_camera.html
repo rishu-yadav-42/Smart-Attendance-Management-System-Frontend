@@ -75,7 +75,7 @@
                 <div class="processing-card">
                     <div class="processing-spinner"></div>
                     <h2>Finalizing Registration</h2>
-                    <p id="processText">Face samples save ho chuke hain, AI model update ho raha hai...</p>
+                    <p id="processText">Face samples saved successfully. Updating AI model...</p>
                 </div>
             </div>
 
@@ -85,8 +85,8 @@
             </div>
 
             <div class="camera-error" id="cameraError" style="display:none;">
-                <p><strong>Camera access nahi mila.</strong></p>
-                <p>Browser settings mein camera permission enable karein.</p>
+                <p><strong>Camera access denied.</strong></p>
+                <p>Please enable camera permissions in your browser settings.</p>
                 <button onclick="location.reload()" class="ultra-glass-btn px-4 py-2 rounded-full font-bold">Retry</button>
             </div>
 
@@ -194,7 +194,7 @@
             } catch (err) {
                 console.error('Camera error:', err);
                 addLog(`❌ Camera error: ${err.message}`, 'error');
-                showError(`Camera access nahi mila: ${err.message}`);
+                showError(`Camera access denied: ${err.message}`);
                 cameraError.style.display = 'block';
             }
         }
@@ -310,7 +310,7 @@
                 }
             } catch (err) {
                 addLog(`❌ Finalize error: ${err.message}`, 'error');
-                window.location.href = `result.html?success=0&title=Registration&message=${encodeURIComponent('Registration finalize karne mein error aaya.')}`;
+                window.location.href = `result.html?success=0&title=Registration&message=${encodeURIComponent('An error occurred while finalizing registration.')}`;
             }
         }
 
