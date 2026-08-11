@@ -344,7 +344,7 @@
             checkBackendConnection();
             if (isAdmin) loadDashboardData();
 
-            setInterval(checkBackendConnection, 15000);
+            setInterval(checkBackendConnection, 4000);
 
             document.getElementById('logoutBtn')?.addEventListener('click', function() {
                 localStorage.removeItem('adminLoggedIn');
@@ -361,32 +361,75 @@
                 window.location.href = 'register_camera.html';
             });
 
+            let isConnected = false;
+            let checkCount = 0;
+
             async function checkBackendConnection() {
                 const badges = [
                     { badge: document.getElementById('backendStatusBadge'), dot: document.getElementById('backendDot'), text: document.getElementById('backendStatusText') },
                     { badge: document.getElementById('guestBackendBadge'), dot: document.getElementById('guestBackendDot'), text: document.getElementById('guestBackendText') }
                 ];
 
+                checkCount++;
+
+                // Show "Connecting / Waking Up Server..." on initial attempts if not connected yet
+                if (!isConnected && checkCount <= 2) {
+                    badges.forEach(b => {
+                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm";
+                        if (b.dot) b.className = "w-2.5 h-2.5 bg-amber-500 rounded-full animate-ping";
+                        if (b.text) b.text.textContent = "Waking Up Server... ⏳";
+                    });
+                }
+
                 try {
                     const res = await fetch(`${API_BASE_URL}/health`, { cache: 'no-store' });
                     if (res.ok) {
                         const data = await res.json();
                         if (data.status === 'ok') {
+                            const wasOffline = !isConnected;
+                            isConnected = true;
                             badges.forEach(b => {
                                 if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/90 text-emerald-700 shadow-sm";
                                 if (b.dot) b.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
                                 if (b.text) b.text.textContent = "Backend Connected 🟢";
                             });
+                            if (wasOffline && isAdmin) {
+                                loadDashboardData();
+                            }
                             return true;
                         }
                     }
                     throw new Error('Non-200 response');
                 } catch (err) {
-                    console.warn('Backend connection failed:', err);
+                    console.warn('Backend connection check failed:', err);
+                    isConnected = false;
+                    
+                    // Try local backend fallback if Render URL is unreachable
+                    if (!API_BASE_URL.includes('127.0.0.1') && !API_BASE_URL.includes('localhost')) {
+                        try {
+                            const localRes = await fetch('http://127.0.0.1:5000/health', { cache: 'no-store' });
+                            if (localRes.ok) {
+                                const localData = await localRes.json();
+                                if (localData.status === 'ok') {
+                                    window.API_BASE_URL = 'http://127.0.0.1:5000';
+                                    localStorage.setItem('API_BASE_URL', window.API_BASE_URL);
+                                    isConnected = true;
+                                    badges.forEach(b => {
+                                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/90 text-emerald-700 shadow-sm";
+                                        if (b.dot) b.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
+                                        if (b.text) b.text.textContent = "Local Backend Connected 🟢";
+                                    });
+                                    if (isAdmin) loadDashboardData();
+                                    return true;
+                                }
+                            }
+                        } catch (localErr) {}
+                    }
+
                     badges.forEach(b => {
-                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-red-300 bg-red-50/90 text-red-700 shadow-sm";
-                        if (b.dot) b.className = "w-2.5 h-2.5 bg-red-500 rounded-full";
-                        if (b.text) b.text.textContent = "Backend Offline Error 🔴";
+                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm";
+                        if (b.dot) b.className = "w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse";
+                        if (b.text) b.text.textContent = checkCount > 3 ? "Backend Offline (Retrying...) 🔴" : "Waking Up Server... ⏳";
                     });
                     return false;
                 }
