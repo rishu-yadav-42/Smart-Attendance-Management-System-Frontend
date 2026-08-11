@@ -137,13 +137,23 @@
             });
         }
 
+        const studentId = localStorage.getItem('temp_id') || '';
+        const studentName = localStorage.getItem('temp_name') || '';
+
         async function captureSingleSample() {
             if (isCapturing || samplesCaptured >= TARGET_SAMPLES) return;
+            if (!studentId || !studentName) {
+                alert('Registration session missing student ID or name. Please start registration from dashboard.');
+                window.location.href = 'index.html';
+                return;
+            }
             isCapturing = true;
 
             const blob = await captureFrameBlob();
             const formData = new FormData();
             formData.append('image', blob, 'sample.jpg');
+            formData.append('student_id', studentId);
+            formData.append('name', studentName);
 
             try {
                 const res = await fetch(`${API_BASE_URL}/capture_register_frame`, {
@@ -164,6 +174,10 @@
                     if (samplesCaptured >= TARGET_SAMPLES) {
                         finishRegistration();
                     }
+                } else if (data.message && data.message.includes("No face")) {
+                    // Normal when face is not aligned in frame
+                } else {
+                    console.warn("Capture info:", data.message);
                 }
             } catch (err) {
                 console.error('Capture error:', err);
@@ -188,9 +202,17 @@
             if (stream) stream.getTracks().forEach(t => t.stop());
 
             try {
-                const res = await fetch(`${API_BASE_URL}/process_register_ajax`, { method: 'POST' });
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                formData.append('name', studentName);
+                const res = await fetch(`${API_BASE_URL}/process_register_ajax`, {
+                    method: 'POST',
+                    body: formData
+                });
                 const data = await res.json();
                 if (data.success) {
+                    localStorage.removeItem('temp_id');
+                    localStorage.removeItem('temp_name');
                     window.location.href = `result.html?success=1&title=Registration&message=${encodeURIComponent(data.message)}`;
                 } else {
                     window.location.href = `result.html?success=0&title=Registration&message=${encodeURIComponent(data.message)}`;
