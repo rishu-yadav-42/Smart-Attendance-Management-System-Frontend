@@ -456,17 +456,17 @@
                     const studentsBody = document.getElementById('studentsTableBody');
                     if (statusData.students && statusData.students.length > 0) {
                         studentsBody.innerHTML = statusData.students.map(s => `
-                            <tr>
-                                <td class="px-6 py-3 font-bold">${s.Id}</td>
-                                <td class="px-6 py-3">${s.Name}</td>
-                                <td class="px-6 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Active</span></td>
-                                <td class="px-6 py-3">
-                                    <button onclick="deleteStudent('${s.Id}')" class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-red-50">Delete</button>
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                                <td class="px-6 py-3.5 font-extrabold text-slate-900">${s.Id}</td>
+                                <td class="px-6 py-3.5 font-bold text-slate-900">${s.Name}</td>
+                                <td class="px-6 py-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Active</span></td>
+                                <td class="px-6 py-3.5">
+                                    <button onclick="deleteStudent('${s.Id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-lg border border-red-200 transition-colors">Delete</button>
                                 </td>
                             </tr>
                         `).join('');
                     } else {
-                        studentsBody.innerHTML = `<tr><td colspan="4" class="px-6 py-6 text-center text-slate-400">No students registered yet.</td></tr>`;
+                        studentsBody.innerHTML = `<tr><td colspan="4" class="px-6 py-6 text-center text-slate-400 font-medium">No students registered yet.</td></tr>`;
                     }
 
                     const dbRes = await fetch(`${API_BASE_URL}/db_view`);
@@ -477,15 +477,15 @@
                     const attBody = document.getElementById('attendanceTableBody');
                     if (dbData.attendance && dbData.attendance.length > 0) {
                         attBody.innerHTML = dbData.attendance.slice(0, 10).map(a => `
-                            <tr>
-                                <td class="px-6 py-3 font-bold">${a.student_id}</td>
-                                <td class="px-6 py-3">${a.name}</td>
-                                <td class="px-6 py-3">${a.date}</td>
-                                <td class="px-6 py-3">${a.time}</td>
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                                <td class="px-6 py-3.5 font-extrabold text-slate-900">${a.student_id}</td>
+                                <td class="px-6 py-3.5 font-bold text-slate-900">${a.name}</td>
+                                <td class="px-6 py-3.5 font-bold text-slate-900">${a.date}</td>
+                                <td class="px-6 py-3.5 font-bold text-slate-900">${a.time}</td>
                             </tr>
                         `).join('');
                     } else {
-                        attBody.innerHTML = `<tr><td colspan="4" class="px-6 py-6 text-center text-slate-400">No attendance logs yet.</td></tr>`;
+                        attBody.innerHTML = `<tr><td colspan="4" class="px-6 py-6 text-center text-slate-400 font-medium">No attendance logs yet.</td></tr>`;
                     }
                 } catch (err) {
                     console.error('Error loading dashboard data:', err);
