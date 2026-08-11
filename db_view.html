@@ -48,10 +48,11 @@
                             <tr>
                                 <th class="px-6 py-3">ID</th>
                                 <th class="px-6 py-3">Name</th>
+                                <th class="px-6 py-3 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody id="dbStudentsBody">
-                            <tr><td colspan="2" class="px-6 py-6 text-center text-slate-500">Loading students...</td></tr>
+                            <tr><td colspan="3" class="px-6 py-6 text-center text-slate-500">Loading students...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -82,7 +83,7 @@
     <script>
         async function loadDbView() {
             try {
-                const res = await fetch(`${API_BASE_URL}/db_view`);
+                const res = await fetch(`${API_BASE_URL}/api/db_view`);
                 const data = await res.json();
                 document.getElementById('dbTotalStudents').textContent = data.total_students || 0;
                 document.getElementById('dbTotalAttendance').textContent = data.total_attendance || 0;
@@ -90,14 +91,32 @@
 
                 const stBody = document.getElementById('dbStudentsBody');
                 if (data.students && data.students.length > 0) {
-                    stBody.innerHTML = data.students.map(s => `<tr><td class="px-6 py-3 font-bold text-white">${s.id}</td><td class="px-6 py-3">${s.name}</td></tr>`).join('');
+                    stBody.innerHTML = data.students.map(s => `
+                        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30">
+                            <td class="px-6 py-3 font-bold text-white">${s.id}</td>
+                            <td class="px-6 py-3">${s.name}</td>
+                            <td class="px-6 py-3 text-right">
+                                <button onclick="deleteStudent('${s.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/40 px-3 py-1 rounded-lg text-xs font-bold transition-colors">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
                 } else {
-                    stBody.innerHTML = `<tr><td colspan="2" class="px-6 py-6 text-center text-slate-500">No student records.</td></tr>`;
+                    stBody.innerHTML = `<tr><td colspan="3" class="px-6 py-6 text-center text-slate-500">No student records.</td></tr>`;
                 }
 
                 const attBody = document.getElementById('dbAttendanceBody');
                 if (data.attendance && data.attendance.length > 0) {
-                    attBody.innerHTML = data.attendance.map(a => `<tr><td class="px-6 py-3 font-bold text-white">${a.student_id}</td><td class="px-6 py-3">${a.name}</td><td class="px-6 py-3">${a.date}</td><td class="px-6 py-3">${a.time}</td><td class="px-6 py-3">${a.confidence}%</td></tr>`).join('');
+                    attBody.innerHTML = data.attendance.map(a => `
+                        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30">
+                            <td class="px-6 py-3 font-bold text-white">${a.student_id}</td>
+                            <td class="px-6 py-3">${a.name}</td>
+                            <td class="px-6 py-3">${a.date}</td>
+                            <td class="px-6 py-3">${a.time}</td>
+                            <td class="px-6 py-3">${a.confidence}%</td>
+                        </tr>
+                    `).join('');
                 } else {
                     attBody.innerHTML = `<tr><td colspan="5" class="px-6 py-6 text-center text-slate-500">No attendance logs.</td></tr>`;
                 }
@@ -105,6 +124,22 @@
                 console.error('Error loading DB view:', err);
             }
         }
+
+        async function deleteStudent(studentId) {
+            if (!confirm(`Are you sure you want to delete student ID ${studentId}?`)) return;
+            try {
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                const res = await fetch(`${API_BASE_URL}/delete_student`, { method: 'POST', body: formData });
+                const result = await res.json();
+                alert(result.message || 'Student deletion processed.');
+                loadDbView();
+            } catch (err) {
+                console.error('Delete student error:', err);
+                alert('Failed to delete student. Please check network connection.');
+            }
+        }
+
         loadDbView();
     </script>
 </body>
