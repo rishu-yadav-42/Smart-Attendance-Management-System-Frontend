@@ -8,7 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        window.API_BASE_URL = window.API_BASE_URL || localStorage.getItem('API_BASE_URL') || 'https://smart-attendance-management-system-fbqm.onrender.com';
+        (function() {
+            const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const defaultRenderUrl = 'https://smart-attendance-management-system-fbqm.onrender.com';
+            let savedUrl = localStorage.getItem('API_BASE_URL');
+            if (!isLocalHost && savedUrl && (savedUrl.includes('localhost') || savedUrl.includes('127.0.0.1') || savedUrl.startsWith('http:'))) {
+                localStorage.removeItem('API_BASE_URL');
+                savedUrl = null;
+            }
+            window.API_BASE_URL = window.API_BASE_URL || savedUrl || defaultRenderUrl;
+        })();
     </script>
     <style>
         .client-camera video {
