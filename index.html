@@ -58,18 +58,6 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
                     <span>Take Attendance</span>
                 </a>
-                <a href="#" id="trainModelBtn" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 hover:text-white rounded-xl transition-all font-medium">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                    <span>Train Model</span>
-                </a>
-                <a href="#" id="retrainModelBtn" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 hover:text-white rounded-xl transition-all font-medium">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
-                    <span>Retrain Model</span>
-                </a>
-                <a href="#" id="syncAttendanceBtn" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 hover:text-white rounded-xl transition-all font-medium">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>
-                    <span>Sync Attendance</span>
-                </a>
                 <a href="db_view.html" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 hover:text-white rounded-xl transition-all font-medium">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                     <span>DB View</span>
@@ -137,6 +125,10 @@
                         <p class="text-slate-500 mt-1 text-sm font-medium">Overview of students, attendance, and system status.</p>
                     </div>
                     <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                        <span id="backendStatusBadge" class="admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm transition-all">
+                            <div id="backendDot" class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-ping"></div>
+                            <span id="backendStatusText">Connecting Backend...</span>
+                        </span>
                         <span id="modelStatusBadge" class="admin-glass px-4 py-2 text-xs font-bold text-emerald-700 flex items-center gap-2 rounded-full" style="border-color:rgba(16,185,129,0.3);">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             <span id="modelStatusText">Loading...</span>
@@ -193,13 +185,13 @@
                             <p class="text-sm text-slate-500 mt-0.5">Open live face scan and verify a student quickly.</p>
                         </div>
                     </a>
-                    <a href="#" id="trainModelCardBtn" class="admin-glass p-6 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300 group">
+                    <a href="db_view.html" class="admin-glass p-6 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300 group">
                         <div class="w-14 h-14 rounded-2xl bg-indigo-100/80 flex items-center justify-center text-indigo-600 shadow-inner border border-indigo-200/50 group-hover:bg-indigo-200/80 transition-colors">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                         </div>
                         <div>
-                            <div class="text-lg font-bold text-slate-900">Train Model</div>
-                            <p class="text-sm text-slate-500 mt-0.5">Refresh recognition data after adding or deleting students.</p>
+                            <div class="text-lg font-bold text-slate-900">View Database</div>
+                            <p class="text-sm text-slate-500 mt-0.5">Inspect raw student and attendance records saved in DB.</p>
                         </div>
                     </a>
                 </section>
@@ -236,15 +228,13 @@
                                     <tr class="text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
                                         <th class="px-6 py-3">ID</th>
                                         <th class="px-6 py-3">Name</th>
-                                        <th class="px-6 py-3">Present</th>
-                                        <th class="px-6 py-3">Total</th>
-                                        <th class="px-6 py-3">Attendance</th>
+                                        <th class="px-6 py-3">Status</th>
                                         <th class="px-6 py-3">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="studentsTableBody" class="text-sm text-slate-700">
                                     <tr>
-                                        <td colspan="6" class="px-6 py-6 text-center text-slate-400">Loading student records...</td>
+                                        <td colspan="4" class="px-6 py-6 text-center text-slate-400">Loading student records...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -291,14 +281,21 @@
                     </h1>
                 </div>
 
-                <a href="login.html" class="ultra-glass-btn flex items-center gap-2 px-4 py-2 rounded-full shadow-sm active:scale-95 transition-transform duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                        <polyline points="10 17 15 12 10 7"></polyline>
-                        <line x1="15" y1="12" x2="3" y2="12"></line>
-                    </svg>
-                    <span class="text-sm font-semibold text-slate-700">Admin</span>
-                </a>
+                <div class="flex flex-col items-end gap-2">
+                    <div id="guestBackendBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm transition-all">
+                        <div id="guestBackendDot" class="w-2 h-2 bg-amber-500 rounded-full animate-ping"></div>
+                        <span id="guestBackendText">Connecting...</span>
+                    </div>
+
+                    <a href="login.html" class="ultra-glass-btn flex items-center gap-2 px-4 py-2 rounded-full shadow-sm active:scale-95 transition-transform duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                        <span class="text-sm font-semibold text-slate-700">Admin</span>
+                    </a>
+                </div>
             </header>
 
             <section class="ultra-glass rounded-[2rem] p-8 flex flex-col items-center text-center gap-6">
@@ -339,11 +336,15 @@
             if (isAdmin) {
                 adminLayout.classList.remove('hidden');
                 guestLayout.classList.add('hidden');
-                loadDashboardData();
             } else {
                 adminLayout.classList.add('hidden');
                 guestLayout.classList.remove('hidden');
             }
+
+            checkBackendConnection();
+            if (isAdmin) loadDashboardData();
+
+            setInterval(checkBackendConnection, 15000);
 
             document.getElementById('logoutBtn')?.addEventListener('click', function() {
                 localStorage.removeItem('adminLoggedIn');
@@ -360,6 +361,37 @@
                 window.location.href = 'register_camera.html';
             });
 
+            async function checkBackendConnection() {
+                const badges = [
+                    { badge: document.getElementById('backendStatusBadge'), dot: document.getElementById('backendDot'), text: document.getElementById('backendStatusText') },
+                    { badge: document.getElementById('guestBackendBadge'), dot: document.getElementById('guestBackendDot'), text: document.getElementById('guestBackendText') }
+                ];
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/health`, { cache: 'no-store' });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.status === 'ok') {
+                            badges.forEach(b => {
+                                if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/90 text-emerald-700 shadow-sm";
+                                if (b.dot) b.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
+                                if (b.text) b.text.textContent = "Backend Connected 🟢";
+                            });
+                            return true;
+                        }
+                    }
+                    throw new Error('Non-200 response');
+                } catch (err) {
+                    console.warn('Backend connection failed:', err);
+                    badges.forEach(b => {
+                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-red-300 bg-red-50/90 text-red-700 shadow-sm";
+                        if (b.dot) b.className = "w-2.5 h-2.5 bg-red-500 rounded-full";
+                        if (b.text) b.text.textContent = "Backend Offline Error 🔴";
+                    });
+                    return false;
+                }
+            }
+
             async function loadDashboardData() {
                 try {
                     const statusRes = await fetch(`${API_BASE_URL}/app_status`);
@@ -375,16 +407,33 @@
                             <tr>
                                 <td class="px-6 py-3 font-bold">${s.Id}</td>
                                 <td class="px-6 py-3">${s.Name}</td>
-                                <td class="px-6 py-3">-</td>
-                                <td class="px-6 py-3">-</td>
-                                <td class="px-6 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Registered</span></td>
+                                <td class="px-6 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Active</span></td>
                                 <td class="px-6 py-3">
                                     <button onclick="deleteStudent('${s.Id}')" class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-red-50">Delete</button>
                                 </td>
                             </tr>
                         `).join('');
                     } else {
-                        studentsBody.innerHTML = `<tr><td colspan="6" class="px-6 py-6 text-center text-slate-400">No students registered yet.</td></tr>`;
+                        studentsBody.innerHTML = `<tr><td colspan="4" class="px-6 py-6 text-center text-slate-400">No students registered yet.</td></tr>`;
+                    }
+
+                    const dbRes = await fetch(`${API_BASE_URL}/db_view`);
+                    const dbData = await dbRes.json();
+                    document.getElementById('attendanceTotal').textContent = dbData.total_attendance || 0;
+                    document.getElementById('activeRecords').textContent = dbData.distinct_dates || 0;
+
+                    const attBody = document.getElementById('attendanceTableBody');
+                    if (dbData.attendance && dbData.attendance.length > 0) {
+                        attBody.innerHTML = dbData.attendance.slice(0, 10).map(a => `
+                            <tr>
+                                <td class="px-6 py-3 font-bold">${a.student_id}</td>
+                                <td class="px-6 py-3">${a.name}</td>
+                                <td class="px-6 py-3">${a.date}</td>
+                                <td class="px-6 py-3">${a.time}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        attBody.innerHTML = `<tr><td colspan="4" class="px-6 py-6 text-center text-slate-400">No attendance logs yet.</td></tr>`;
                     }
                 } catch (err) {
                     console.error('Error loading dashboard data:', err);
