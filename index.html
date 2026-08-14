@@ -373,6 +373,19 @@
             let isConnected = false;
             let checkCount = 0;
 
+            async function fetchWithTimeout(url, timeoutMs = 3500) {
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
+                    clearTimeout(id);
+                    return res;
+                } catch (e) {
+                    clearTimeout(id);
+                    throw e;
+                }
+            }
+
             async function checkBackendConnection() {
                 const badges = [
                     { badge: document.getElementById('backendStatusBadge'), dot: document.getElementById('backendDot'), text: document.getElementById('backendStatusText') },
@@ -381,67 +394,45 @@
 
                 checkCount++;
 
-                // Show "Connecting / Waking Up Server..." on initial attempts if not connected yet
-                if (!isConnected && checkCount <= 2) {
-                    badges.forEach(b => {
-                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm";
-                        if (b.dot) b.className = "w-2.5 h-2.5 bg-amber-500 rounded-full animate-ping";
-                        if (b.text) b.text.textContent = "Waking Up Server... ⏳";
-                    });
-                }
+                const candidates = Array.from(new Set([
+                    window.API_BASE_URL,
+                    'http://127.0.0.1:5000',
+                    'http://127.0.0.1:5001',
+                    'https://smart-attendance-management-system-fbqm.onrender.com'
+                ])).filter(Boolean);
 
-                try {
-                    const res = await fetch(`${API_BASE_URL}/health`, { cache: 'no-store' });
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.status === 'ok') {
-                            const wasOffline = !isConnected;
-                            isConnected = true;
-                            badges.forEach(b => {
-                                if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/90 text-emerald-700 shadow-sm";
-                                if (b.dot) b.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
-                                if (b.text) b.text.textContent = "Backend Connected 🟢";
-                            });
-                            if (wasOffline && isAdmin) {
-                                loadDashboardData();
-                            }
-                            return true;
-                        }
-                    }
-                    throw new Error('Non-200 response');
-                } catch (err) {
-                    console.warn('Backend connection check failed:', err);
-                    isConnected = false;
-                    
-                    // Try local backend fallback if Render URL is unreachable
-                    if (!API_BASE_URL.includes('127.0.0.1') && !API_BASE_URL.includes('localhost')) {
-                        try {
-                            const localRes = await fetch('http://127.0.0.1:5000/health', { cache: 'no-store' });
-                            if (localRes.ok) {
-                                const localData = await localRes.json();
-                                if (localData.status === 'ok') {
-                                    window.API_BASE_URL = 'http://127.0.0.1:5000';
-                                    localStorage.setItem('API_BASE_URL', window.API_BASE_URL);
-                                    isConnected = true;
-                                    badges.forEach(b => {
-                                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/90 text-emerald-700 shadow-sm";
-                                        if (b.dot) b.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
-                                        if (b.text) b.text.textContent = "Local Backend Connected 🟢";
-                                    });
-                                    if (isAdmin) loadDashboardData();
-                                    return true;
+                for (const candidate of candidates) {
+                    try {
+                        const res = await fetchWithTimeout(`${candidate}/health`, 3500);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.status === 'ok') {
+                                const wasOffline = !isConnected;
+                                isConnected = true;
+                                window.API_BASE_URL = candidate;
+                                localStorage.setItem('API_BASE_URL', candidate);
+                                const isLocal = candidate.includes('127.0.0.1') || candidate.includes('localhost');
+                                badges.forEach(b => {
+                                    if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/90 text-emerald-700 shadow-sm";
+                                    if (b.dot) b.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse";
+                                    if (b.text) b.text.textContent = isLocal ? `Local Backend Connected (${candidate.split(':').pop()}) 🟢` : "Cloud Backend Connected 🟢";
+                                });
+                                if (wasOffline && isAdmin) {
+                                    loadDashboardData();
                                 }
+                                return true;
                             }
-                        } catch (localErr) {}
-                    }
-
-                    badges.forEach(b => {
-                        if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm";
-                        if (b.dot) b.className = "w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse";
-                        if (b.text) b.text.textContent = checkCount > 3 ? "Backend Offline (Retrying...) 🔴" : "Waking Up Server... ⏳";
-                    });
-                    return false;
+                        }
+                    } catch (err) {}
                 }
+
+                isConnected = false;
+                badges.forEach(b => {
+                    if (b.badge) b.className = "admin-glass px-4 py-2 text-xs font-bold flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50/90 text-amber-700 shadow-sm";
+                    if (b.dot) b.className = "w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse";
+                    if (b.text) b.text.textContent = checkCount <= 4 ? "Waking Up Render Server... ⏳" : "Backend Offline (Start app or wait)... 🔴";
+                });
+                return false;
             }
 
             async function loadDashboardData() {
